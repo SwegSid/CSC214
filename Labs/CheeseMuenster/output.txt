@@ -1,0 +1,12 @@
+=== Canadian Cheese Directory Analysis ===
+
+Pasteurized milk cheeses: 800
+Raw milk cheeses: 115
+
+Organic cheeses with moisture > 41.0%: 53
+
+Most common milk type: Cow
+
+Average moisture percent: 47.07%
+
+Cheeses described as "lactic": 38
