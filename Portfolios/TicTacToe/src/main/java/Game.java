@@ -6,6 +6,8 @@ public class Game {
     private final Scanner scanner;
     private final Board board;
     private char currentPlayer;
+    private Player playerX;
+    private Player playerO;
 
     public Game(Scanner scanner) {
         this.scanner = scanner;
@@ -15,10 +17,61 @@ public class Game {
 
     public void start() {
         System.out.println("Welcome to Tic-Tac-Toe!");
+        chooseGameMode();
         do {
             playGame();
         } while (askPlayAgain());
         System.out.println("\nGoodbye!");
+    }
+
+    private void chooseGameMode() {
+        System.out.println("\nWhat kind of game would you like to play?\n");
+        System.out.println("1. Human vs. Human");
+        System.out.println("2. Human vs. Computer");
+        System.out.println("3. Computer vs. Human");
+        System.out.println();
+
+        int selection = getMenuSelection();
+
+        switch (selection) {
+            case 1:
+                playerX = new HumanPlayer(scanner);
+                playerO = new HumanPlayer(scanner);
+                break;
+            case 2:
+                playerX = new HumanPlayer(scanner);
+                playerO = new OpportunisticComputerPlayer();
+                System.out.println("\nGreat! You will go first.");
+                break;
+            case 3:
+                playerX = new OpportunisticComputerPlayer();
+                playerO = new HumanPlayer(scanner);
+                System.out.println("\nGreat! The computer will go first.");
+                break;
+        }
+    }
+
+    private int getMenuSelection() {
+        while (true) {
+            System.out.print("What is your selection? ");
+            String line = scanner.nextLine();
+
+            if (line.isBlank()) { printInvalidSelection(); continue; }
+            String trimmed = line.trim();
+            if (!trimmed.matches("\\d+")) { printInvalidSelection(); continue; }
+
+            int selection;
+            try {
+                selection = Integer.parseInt(trimmed);
+            } catch (NumberFormatException e) { printInvalidSelection(); continue; }
+
+            if (selection < 1 || selection > 3) { printInvalidSelection(); continue; }
+            return selection;
+        }
+    }
+
+    private void printInvalidSelection() {
+        System.out.println("\nThat is not a valid selection! Try again.\n");
     }
 
     private void playGame() {
@@ -27,7 +80,10 @@ public class Game {
         board.print();
 
         while (true) {
-            int move = getMove();
+            Player active = (currentPlayer == 'X') ? playerX : playerO;
+            char opponentSymbol = (currentPlayer == 'X') ? 'O' : 'X';
+
+            int move = active.getMove(board, currentPlayer, opponentSymbol);
             board.mark(move, currentPlayer);
             board.print();
 
@@ -45,57 +101,12 @@ public class Game {
         }
     }
 
-    private int getMove() {
-        while (true) {
-            System.out.print("What is your move?  ");
-            String line = scanner.nextLine();
-
-            // Reject blank / whitespace-only input
-            if (line.isBlank()) {
-                printInvalid();
-                continue;
-            }
-
-            String trimmed = line.trim();
-
-            // Must be all digits (reject decimals, symbols, letters, whitespace inside)
-            if (!trimmed.matches("\\d+")) {
-                printInvalid();
-                continue;
-            }
-
-            int cell;
-            try {
-                cell = Integer.parseInt(trimmed);
-            } catch (NumberFormatException e) {
-                printInvalid();
-                continue;
-            }
-
-            if (cell < 1 || cell > 9) {
-                printInvalid();
-                continue;
-            }
-
-            if (!board.isCellAvailable(cell)) {
-                printInvalid();
-                continue;
-            }
-
-            return cell;
-        }
-    }
-
     private boolean askPlayAgain() {
         while (true) {
             System.out.print("Would you like to play again (yes/no)?  ");
             String line = scanner.nextLine();
 
-            if (line.isBlank()) {
-                printInvalidEntry();
-                continue;
-            }
-
+            if (line.isBlank()) { printInvalidEntry(); continue; }
             String trimmed = line.trim().toLowerCase();
 
             if (trimmed.equals("yes")) return true;
@@ -103,10 +114,6 @@ public class Game {
 
             printInvalidEntry();
         }
-    }
-
-    private void printInvalid() {
-        System.out.println("\nThat is not a valid move! Try again.\n");
     }
 
     private void printInvalidEntry() {
