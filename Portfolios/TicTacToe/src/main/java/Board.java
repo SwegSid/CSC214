@@ -4,20 +4,35 @@ import java.util.List;
 
 public class Board {
     private static final int[][] WINS = {
-            {0,1,2},{3,4,5},{6,7,8},
-            {0,3,6},{1,4,7},{2,5,8},
-            {0,4,8},{2,4,6}
+            {0,1,2},{3,4,5},{6,7,8}, // rows
+            {0,3,6},{1,4,7},{2,5,8}, // cols
+            {0,4,8},{2,4,6}          // diagonals
     };
 
     private final char[] cells;
+    private int lastMove;
 
     public Board() {
         cells = new char[9];
-        for (int i = 0; i < 9; i++) cells[i] = (char) ('1' + i);
+        for (int i = 0; i < 9; i++) {
+            cells[i] = (char) ('1' + i);
+        }
+        lastMove = 0;
     }
 
     public void reset() {
-        for (int i = 0; i < 9; i++) cells[i] = (char) ('1' + i);
+        for (int i = 0; i < 9; i++) {
+            cells[i] = (char) ('1' + i);
+        }
+        lastMove = 0;
+    }
+
+    /**
+     * Returns the 1-indexed cell of the most recent move made on this board,
+     * or 0 if no move has been made yet.
+     */
+    public int getLastMove() {
+        return lastMove;
     }
 
     public boolean isCellAvailable(int cell) {
@@ -26,10 +41,15 @@ public class Board {
 
     public void mark(int cell, char symbol) {
         cells[cell - 1] = symbol;
+        lastMove = cell;
     }
 
     public void unmark(int cell) {
         cells[cell - 1] = (char) ('1' + (cell - 1));
+    }
+
+    public char getSymbol(int cell) {
+        return cells[cell - 1];
     }
 
     public boolean isEmpty() {
@@ -38,20 +58,30 @@ public class Board {
 
     public int countFilled() {
         int count = 0;
-        for (char c : cells) if (c == 'X' || c == 'O') count++;
+        for (char c : cells) {
+            if (c == 'X' || c == 'O') count++;
+        }
         return count;
     }
 
     public List<Integer> getAvailableCells() {
         List<Integer> available = new ArrayList<>();
         for (int cell = 1; cell <= 9; cell++) {
-            if (isCellAvailable(cell)) available.add(cell);
+            if (isCellAvailable(cell)) {
+                available.add(cell);
+            }
         }
         return available;
     }
 
+    /**
+     * Checks whether marking the given cell with the given symbol would
+     * result in a win, without permanently altering the board.
+     */
     public boolean wouldWin(int cell, char symbol) {
-        if (!isCellAvailable(cell)) return false;
+        if (!isCellAvailable(cell)) {
+            return false;
+        }
         mark(cell, symbol);
         boolean result = hasWinner(symbol);
         unmark(cell);
@@ -60,20 +90,26 @@ public class Board {
 
     public boolean hasWinner() {
         for (int[] line : WINS) {
-            if (cells[line[0]] == cells[line[1]] && cells[line[1]] == cells[line[2]]) return true;
+            if (cells[line[0]] == cells[line[1]] && cells[line[1]] == cells[line[2]]) {
+                return true;
+            }
         }
         return false;
     }
 
     public boolean hasWinner(char symbol) {
         for (int[] line : WINS) {
-            if (cells[line[0]] == symbol && cells[line[1]] == symbol && cells[line[2]] == symbol) return true;
+            if (cells[line[0]] == symbol && cells[line[1]] == symbol && cells[line[2]] == symbol) {
+                return true;
+            }
         }
         return false;
     }
 
     public boolean isFull() {
-        for (char c : cells) if (c != 'X' && c != 'O') return false;
+        for (char c : cells) {
+            if (c != 'X' && c != 'O') return false;
+        }
         return true;
     }
 

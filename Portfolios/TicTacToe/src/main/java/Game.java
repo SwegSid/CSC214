@@ -1,5 +1,4 @@
 
-
 import java.util.Scanner;
 
 public class Game {
@@ -27,8 +26,10 @@ public class Game {
     private void chooseGameMode() {
         System.out.println("\nWhat kind of game would you like to play?\n");
         System.out.println("1. Human vs. Human");
-        System.out.println("2. Human vs. Computer");
-        System.out.println("3. Computer vs. Human");
+        System.out.println("2. Human vs. Opportunistic Computer Player");
+        System.out.println("3. Opportunistic Computer Player vs. Human");
+        System.out.println("4. Human vs. Adjacent Computer Player");
+        System.out.println("5. Adjacent Computer Player vs. Human");
         System.out.println();
 
         int selection = getMenuSelection();
@@ -48,6 +49,20 @@ public class Game {
                 playerO = new HumanPlayer(scanner);
                 System.out.println("\nGreat! The computer will go first.");
                 break;
+            case 4:
+                playerX = new HumanPlayer(scanner);
+                playerO = new AdjacentComputerPlayer();
+                System.out.println("\nGreat! You will go first.");
+                break;
+            case 5:
+                playerX = new AdjacentComputerPlayer();
+                playerO = new HumanPlayer(scanner);
+                System.out.println("\nGreat! The computer will go first.");
+                break;
+            default:
+                // Unreachable due to validation in getMenuSelection, but keeps compiler happy.
+                playerX = new HumanPlayer(scanner);
+                playerO = new HumanPlayer(scanner);
         }
     }
 
@@ -56,16 +71,31 @@ public class Game {
             System.out.print("What is your selection? ");
             String line = scanner.nextLine();
 
-            if (line.isBlank()) { printInvalidSelection(); continue; }
+            if (line.isBlank()) {
+                printInvalidSelection();
+                continue;
+            }
+
             String trimmed = line.trim();
-            if (!trimmed.matches("\\d+")) { printInvalidSelection(); continue; }
+
+            if (!trimmed.matches("\\d+")) {
+                printInvalidSelection();
+                continue;
+            }
 
             int selection;
             try {
                 selection = Integer.parseInt(trimmed);
-            } catch (NumberFormatException e) { printInvalidSelection(); continue; }
+            } catch (NumberFormatException e) {
+                printInvalidSelection();
+                continue;
+            }
 
-            if (selection < 1 || selection > 3) { printInvalidSelection(); continue; }
+            if (selection < 1 || selection > 5) {
+                printInvalidSelection();
+                continue;
+            }
+
             return selection;
         }
     }
@@ -106,7 +136,11 @@ public class Game {
             System.out.print("Would you like to play again (yes/no)?  ");
             String line = scanner.nextLine();
 
-            if (line.isBlank()) { printInvalidEntry(); continue; }
+            if (line.isBlank()) {
+                printInvalidEntry();
+                continue;
+            }
+
             String trimmed = line.trim().toLowerCase();
 
             if (trimmed.equals("yes")) return true;
